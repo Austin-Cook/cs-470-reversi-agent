@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
-class SmartGuy {
+class RandomGuy {
 
     public Socket s;
 	public BufferedReader sin;
@@ -27,7 +27,7 @@ class SmartGuy {
     
     
     // main function that (1) establishes a connection with the server, and then plays whenever it is this player's turn
-    public SmartGuy(int _me, String host) {
+    public RandomGuy(int _me, String host) {
         me = _me;
         initClient(host);
 
@@ -240,7 +240,7 @@ class SmartGuy {
     //   ipaddress is the ipaddress on the computer the server was launched on.  Enter "localhost" if it is on the same computer
     //   player_number is 1 (for the black player) and 2 (for the white player)
     public static void main(String args[]) {
-        new SmartGuy(Integer.parseInt(args[1]), args[0]);
+        new RandomGuy(Integer.parseInt(args[1]), args[0]);
     }
     
 }

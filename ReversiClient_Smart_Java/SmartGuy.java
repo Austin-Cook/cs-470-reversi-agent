@@ -64,6 +64,8 @@ class SmartGuy {
         // just move randomly for now
         int myMove = generator.nextInt(numValidMoves);
         
+        // int myMove = Minimax.ComputeBest();
+
         return myMove;
     }
     

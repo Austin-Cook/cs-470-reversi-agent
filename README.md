@@ -19,4 +19,4 @@ throughout the game.
 3. Start player 2 
     - The Random player (in folder `ReversiClient_Random_Java`): `java RandomGuy localhost 2`  
     OR
-    - Strategic Agent (in folder `ReversiClient_Java`): `java SmartGuy localhost 2`
+    - Strategic Agent (in folder `ReversiClient_Smart_Java`): `java SmartGuy localhost 2`
