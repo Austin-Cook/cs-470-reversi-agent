@@ -39,7 +39,7 @@ class SmartGuy {
             
             if (turn == me) {
                 System.out.println("Move");
-                numValidMoves = ValidMoves.getValidMoves(round, state, me, validMoves);
+                numValidMoves = Util.getValidMoves(round, state, me, validMoves);
                 
                 myMove = move();
                 

@@ -1,9 +1,12 @@
-public class ValidMoves {
+public class Util {
+  public static final int MAXIMIZER = 1;
+  public static final int MINIMIZER = 2;
+  
   // generates the set of valid moves for the player; returns a list of valid moves (validMoves)
   // sets a value at an index (increasing) for each valid move to a number representing a number on the grid
   // returns the number of valid moves
   public static int getValidMoves(int round, int state[][], int player, int[] _validMoves) {
-    assert (player == 1 || player == 2);
+    assert (player == MAXIMIZER || player == MINIMIZER);
     assert (_validMoves.length == 64);
 
     int i, j;
@@ -53,11 +56,25 @@ public class ValidMoves {
     //    System.exit(1);
     //}
   }
+
+  // flip sandwiched pieces after a player takes a turn
+  public static void flipPieces(int[][] state, int row, int col, int player) {
+    int incx, incy;
+    
+    for (incx = -1; incx < 2; incx++) {
+      for (incy = -1; incy < 2; incy++) {
+        if ((incx == 0) && (incy == 0))
+          continue;
+    
+        flipInDirection(state, row, col, incx, incy, player);
+      }
+    }
+  }
   
   // Checks if a piece could be placed at a location
   // given the pieces from a specific direction from the location
   private static boolean checkDirection(int state[][], int row, int col, int incx, int incy, int player) {
-    assert (player == 1 || player == 2);
+    assert (player == MAXIMIZER || player == MINIMIZER);
 
     int sequence[] = new int[7];
     int seqLen;
@@ -77,7 +94,7 @@ public class ValidMoves {
     
     int count = 0;
     for (i = 0; i < seqLen; i++) {
-      if (player == 1) {
+      if (player == MAXIMIZER) {
         if (sequence[i] == 2)
           count ++;
         else {
@@ -103,7 +120,7 @@ public class ValidMoves {
   // Can I place a piece in this location?
   // Checks in a circle around the placement location
   private static boolean couldBe(int state[][], int row, int col, int player) {
-    assert (player == 1 || player == 2);
+    assert (player == MAXIMIZER || player == MINIMIZER);
 
     int incx, incy;
     
@@ -118,5 +135,72 @@ public class ValidMoves {
     }
     
     return false;
+  }
+
+  private static void flipInDirection(int[][] state, int row, int col, int incx, int incy, int player) {
+    assert(state.length == 8 && state[0].length == 8);
+
+    int sequence[] = new int[7];
+    int seqLen;
+    int i, r, c;
+    
+    seqLen = 0;
+    for (i = 1; i < 8; i++) {
+      r = row+incy*i;
+      c = col+incx*i;
+  
+      if ((r < 0) || (r > 7) || (c < 0) || (c > 7))
+        break;
+  
+      sequence[seqLen] = state[r][c];
+      seqLen++;
+    }
+    
+    int count = 0;
+    for (i = 0; i < seqLen; i++) {
+      if (player == 1) {
+        if (sequence[i] == 2)
+          count ++;
+        else {
+          if ((sequence[i] == 1) && (count > 0))
+            count = 20;
+          break;
+        }
+      }
+      else {
+        if (sequence[i] == 1)
+          count ++;
+        else {
+          if ((sequence[i] == 2) && (count > 0))
+            count = 20;
+          break;
+        }
+      }
+    }
+    
+    if (count > 10) {
+      if (player == 1) {
+        i = 1;
+        r = row+incy*i;
+        c = col+incx*i;
+        while (state[r][c] == 2) {
+          state[r][c] = 1;
+          i++;
+          r = row+incy*i;
+          c = col+incx*i;
+        }
+      }
+      else {
+        i = 1;
+        r = row+incy*i;
+        c = col+incx*i;
+        while (state[r][c] == 1) {
+          state[r][c] = 2;
+          i++;
+          r = row+incy*i;
+          c = col+incx*i;
+        }
+      }
+    }
   }
 }
