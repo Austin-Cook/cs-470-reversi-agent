@@ -18,7 +18,7 @@ public class Minimax {
     // 8  9  10 11 12 13 14 15
     // 0  1  2  3  4  5  6  7
     // returns the grid representation 0-63 of the best move
-    public int computeBest(int round, int[][] state, int depth, int player) {
+    public int computeBestMove(final int round, final int[][] state, final int depth, final int player) {
         assert(player == Util.MAXIMIZER || player == Util.MINIMIZER);
         bestMove = -1;
         topDepth = depth;
@@ -28,22 +28,50 @@ public class Minimax {
         return bestMove;
     }
 
-    private int minimax(int round, int[][] state, int depth, int player) {
+    // returns the score of the best move
+    // sets best
+    private int minimax(final int round, final int[][] state, final int depth, final int player) {
         int[] validMoves = new int[64];
         int numValidMoves = Util.getValidMoves(round, state, player, validMoves);
         
+        // base case
         if (depth == 0 || numValidMoves == 0) {
             return staticEvaluation(state);
         }
 
-        return 0; // todo change
-
-        // TODO make sure to increase round at each call
-        
+        if (player == Util.MAXIMIZER) {
+            int maxEval = Integer.MIN_VALUE;
+            for (int i = 0; i < numValidMoves; i++) {
+                int[][] child = createChildState(state, player, validMoves[i]); // NOTE can reduce time complexity by some by changing to not duplicate this(MAYBE LATER)
+                int eval = minimax(round + 1, child, depth - 1, Util.MINIMIZER);
+                if (depth == topDepth) {
+                    // move value only needed at the top level (immediate move)
+                    if (eval > maxEval) {
+                        bestMove = validMoves[i];
+                    }
+                }
+                maxEval = Math.max(maxEval, eval);
+            }
+            return maxEval;
+        } else {
+            int minEval = Integer.MAX_VALUE;
+            for (int i = 0; i < numValidMoves; i++) {
+                int[][] child = createChildState(state, player, validMoves[i]);
+                int eval = minimax(round + 1, child, depth - 1, Util.MAXIMIZER);
+                if (depth == topDepth) {
+                    // move value only needed at the top level (immediate move)
+                    if (eval < minEval) {
+                        bestMove = validMoves[i];
+                    }
+                }
+                minEval = Math.min(minEval, eval);
+            }
+            return minEval;
+        }        
     }
 
-    private int staticEvaluation(int[][] state) {
-        // assert(state.length == 8 && state[0].length == 8);
+    private int staticEvaluation(final int[][] state) {
+        assert(state.length == 8 && state[0].length == 8);
         
         int val = 0;
         for (int i = 0; i < 8; i++) {
@@ -59,8 +87,31 @@ public class Minimax {
         return val;
     }
 
-    private int[][] copyState() {
-        // TODO
-        return new int[8][8];
+    // move is (0-63) index representation of a move
+    public static int[][] createChildState(final int[][] state, final int player, final int move) {
+        int[][] child = new int[8][8];
+        for (int i = 0; i < 8; i++){
+            for (int j = 0; j < 8; j++){
+                child[i][j] = state[i][j];
+            }
+        }
+        
+        int row = getRow(move);
+        int col = getCol(move);
+        System.out.println("row: " + row + ", col: " + col);
+        
+        child[row][col] = player;
+        Util.flipPieces(child, row, col, player);
+
+        return child;
+    }
+
+    // TODO MAKE SURE I'M NOT GETTING ROWS BACKWARDS!!!!!
+    private static int getRow(final int indexRepresentation) {
+        return indexRepresentation / 8;
+    }
+
+    private static int getCol(final int indexRepresentation) {
+        return indexRepresentation % 8;
     }
 }

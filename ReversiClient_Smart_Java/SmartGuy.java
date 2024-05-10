@@ -14,6 +14,7 @@ class SmartGuy {
 	public BufferedReader sin;
 	public PrintWriter sout;
     Random generator = new Random();
+    Minimax brain = new Minimax();
 
     double t1, t2;
     int me;
@@ -57,16 +58,32 @@ class SmartGuy {
         //}
     }
     
-    // You should modify this function
     // validMoves is a list of valid locations that you could place your "stone" on this turn
     // Note that "state" is a global variable 2D list that shows the state of the game
     private int move() {
-        // just move randomly for now
-        int myMove = generator.nextInt(numValidMoves);
+        // // just move randomly for now
+        // int myMove = generator.nextInt(numValidMoves);
         
-        // int myMove = Minimax.ComputeBest();
+        // NOTE YOU MUST RETURN THE INDEX OF THE MOVE BASED ON WHAT IS GIVEN!!!
+        // number 0-63 representing the grid index to move
+        int moveGridValue = brain.computeBestMove(round, state, 5, me);
+        int myMove = getValidMoveIndex(moveGridValue);
+        System.out.println("My move grid value: " + moveGridValue + ", index: " + myMove);
 
         return myMove;
+    }
+
+    // finds which index of the array of all possible moves cooresponds to the grid value (0-63) of the chosen move
+    private int getValidMoveIndex(int moveGridValue) {
+        int index = -1;
+        for (int i = 0; i < numValidMoves; i++) {
+            if (validMoves[i] == moveGridValue) {
+                index = i;
+            }
+        }
+
+        assert(index != -1);
+        return index;
     }
     
     public void readMessage() {
