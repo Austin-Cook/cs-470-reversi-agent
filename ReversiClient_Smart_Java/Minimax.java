@@ -23,14 +23,14 @@ public class Minimax {
         bestMove = -1;
         topDepth = depth;
         
-        int bestMoveScore = minimax(round, state, depth, player);
+        int bestMoveScore = minimax(round, state, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player);
         System.out.println("Best possible score: " + bestMoveScore);
         return bestMove;
     }
 
     // returns the score of the best move
     // sets best
-    private int minimax(final int round, final int[][] state, final int depth, final int player) {
+    private int minimax(final int round, final int[][] state, final int depth, int alpha, int beta, final int player) {
         int[] validMoves = new int[64];
         int numValidMoves = Util.getValidMoves(round, state, player, validMoves);
         
@@ -43,28 +43,36 @@ public class Minimax {
             int maxEval = Integer.MIN_VALUE;
             for (int i = 0; i < numValidMoves; i++) {
                 int[][] child = createChildState(state, player, validMoves[i]); // NOTE can reduce time complexity by some by changing to not duplicate this(MAYBE LATER)
-                int eval = minimax(round + 1, child, depth - 1, Util.MINIMIZER);
+                int eval = minimax(round + 1, child, depth - 1, alpha, beta, Util.MINIMIZER);
                 if (depth == topDepth) {
-                    // move value only needed at the top level (immediate move)
+                    // move value only saved at the top level (immediate move)
                     if (eval > maxEval) {
                         bestMove = validMoves[i];
                     }
                 }
                 maxEval = Math.max(maxEval, eval);
+                alpha = Math.max(alpha, eval);
+                if (beta <= alpha) {
+                    break;
+                }
             }
             return maxEval;
         } else {
             int minEval = Integer.MAX_VALUE;
             for (int i = 0; i < numValidMoves; i++) {
                 int[][] child = createChildState(state, player, validMoves[i]);
-                int eval = minimax(round + 1, child, depth - 1, Util.MAXIMIZER);
+                int eval = minimax(round + 1, child, depth - 1, alpha, beta, Util.MAXIMIZER);
                 if (depth == topDepth) {
-                    // move value only needed at the top level (immediate move)
+                    // move value only saved at the top level (immediate move)
                     if (eval < minEval) {
                         bestMove = validMoves[i];
                     }
                 }
                 minEval = Math.min(minEval, eval);
+                beta = Math.min(beta, eval);
+                if (beta <= alpha) {
+                    break;
+                }
             }
             return minEval;
         }        
