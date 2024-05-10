@@ -58,37 +58,27 @@ class SmartGuy {
         //}
     }
     
-    // validMoves is a list of valid locations that you could place your "stone" on this turn
-    // Note that "state" is a global variable 2D list that shows the state of the game
     private int move() {
-        // // just move randomly for now
-        // int myMove = generator.nextInt(numValidMoves);
-        
-        // NOTE YOU MUST RETURN THE INDEX OF THE MOVE BASED ON WHAT IS GIVEN!!!
-        // number 0-63 representing the grid index to move
-        int moveGridValue = brain.computeBestMove(round, state, 5, me);
-        int myMove = getValidMoveIndex(moveGridValue);
-        System.out.println("My move grid value: " + moveGridValue + ", index: " + myMove);
-
-        return myMove;
+        int moveGridValue = brain.computeBestMove(round, state, 6, me);
+        return findMoveInValidMoves(moveGridValue);
     }
 
-    // finds which index of the array of all possible moves cooresponds to the grid value (0-63) of the chosen move
-    private int getValidMoveIndex(int moveGridValue) {
-        int index = -1;
+    /**
+     * Convert the index in the board (0-63) to the cooresponding move in validMoves array
+     */
+    private int findMoveInValidMoves(int moveGridValue) {
+        int index = 0;
         for (int i = 0; i < numValidMoves; i++) {
             if (validMoves[i] == moveGridValue) {
                 index = i;
             }
         }
 
-        assert(index != -1);
         return index;
     }
     
     public void readMessage() {
         int i, j;
-        String status;
         try {
             //System.out.println("Ready to read again");
             turn = Integer.parseInt(sin.readLine());
@@ -153,5 +143,4 @@ class SmartGuy {
     public static void main(String args[]) {
         new SmartGuy(Integer.parseInt(args[1]), args[0]);
     }
-    
 }

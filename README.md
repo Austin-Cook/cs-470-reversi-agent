@@ -6,7 +6,7 @@ this code.
 moves.
 3. ReversiClient_Random_Java – Java code that is a random client. If you want to code your program in 
 It connects to the server and makes random moves when it is its turn.
-4. ReversiClient_Java - Java code for a smarter client agent. This uses the minimax algorithm with alpha-beta pruning and smart heuristics.
+4. ReversiClient_Smart_Java - Java code for a smarter client agent. This uses the minimax algorithm with alpha-beta pruning and smart heuristics.
 NOTE - You’ll need to compile the code in each folder (`javac *.java`) before running it.
 
 
