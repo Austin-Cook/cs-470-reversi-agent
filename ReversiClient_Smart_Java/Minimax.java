@@ -79,7 +79,7 @@ public class Minimax {
                 if (state[i][j] == Util.MAXIMIZER) {
                     val += 1;
                 } else if (state[i][j] == Util.MINIMIZER) {
-                    val -= 2;
+                    val -= 1;
                 }
             }
         }
