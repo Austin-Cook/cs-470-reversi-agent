@@ -14,7 +14,7 @@ class MinimaxClient {
 	public BufferedReader sin;
 	public PrintWriter sout;
     Random generator = new Random();
-    MCTS brain = new MCTS();
+    Minimax brain = new Minimax();
 
     double t1, t2;
     int me;
