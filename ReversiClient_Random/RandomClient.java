@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
-class RandomGuy {
+class RandomClient {
 
     public Socket s;
 	public BufferedReader sin;
@@ -27,7 +27,7 @@ class RandomGuy {
     
     
     // main function that (1) establishes a connection with the server, and then plays whenever it is this player's turn
-    public RandomGuy(int _me, String host) {
+    public RandomClient(int _me, String host) {
         me = _me;
         initClient(host);
 
@@ -236,11 +236,11 @@ class RandomGuy {
 
     
     // compile on your machine: javac *.java
-    // call: java RandomGuy [ipaddress] [player_number]
+    // call: java RandomClient [ipaddress] [player_number]
     //   ipaddress is the ipaddress on the computer the server was launched on.  Enter "localhost" if it is on the same computer
     //   player_number is 1 (for the black player) and 2 (for the white player)
     public static void main(String args[]) {
-        new RandomGuy(Integer.parseInt(args[1]), args[0]);
+        new RandomClient(Integer.parseInt(args[1]), args[0]);
     }
     
 }

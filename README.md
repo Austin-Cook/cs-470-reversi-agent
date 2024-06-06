@@ -1,22 +1,62 @@
-The supplied code contains the following four folders/programs:
-1. ReversiServer – Java code that acts as the Server for two client programs. Client programs (e.g., 
-your algorithm) connect to the server so that they can play games. You shouldn’t have to change 
-this code.
-2. ReversiHuman – Java code for a human client. It displays a GUI that a user can click on to make 
-moves.
-3. ReversiClient_Random_Java – Java code that is a random client. If you want to code your program in 
-It connects to the server and makes random moves when it is its turn.
-4. ReversiClient_Smart_Java - Java code for a smarter client agent. This uses the minimax algorithm with alpha-beta pruning and smart heuristics.
-NOTE - You’ll need to compile the code in each folder (`javac *.java`) before running it.
+A server to facilitate games of Reversi, and 5 clients, each with a unique strategy to play the game.
 
+# Compile and Run
 
-Suppose that I wanted to have a human player play against a computer player, all running on the same computer. Then I would do the following:
-1. Start the server (in folder `ReversiServer`): `java Reversi 10`  
-    - Note that the parameter 10 specifies the number of minutes that each player has of move 
-throughout the game. 
-2. Start player 1 (the Human player in this case - in folder `ReversiHuman`): `java Human localhost 1`  
-    - See the files for descriptions of the parameters
-3. Start player 2 
-    - The Random player (in folder `ReversiClient_Random_Java`): `java RandomGuy localhost 2`  
-    OR
-    - Strategic Agent (in folder `ReversiClient_Smart_Java`): `java SmartGuy localhost 2`
+## Compile
+
+To compile the server, or any of the clients, move to the respective folder and run:
+
+`javac *.java`
+
+Note: `ReversiClient_DrCrandall_MCTS` is just a `.jar` file, and does not need to be compiled.
+
+## Run
+
+### 1. Start the Server
+
+In folder `ReversiServer`, run:
+
+`java Reversi 10`  
+
+Note: The parameter 10 specifies the number of minutes that each player has of move 
+throughout the game.
+
+### 2. Connect Two Clients (Players) to the Server
+
+In the respective client folders, run:
+
+`java CLIENT_NAME localhost 1` for player 1  
+`java CLIENT_NAME localhost 2` for player 2
+
+Note: Replace `CLIENT_NAME` with the respective client name in the folder:
+- `HumanClient`
+- `RandomClient`
+- `MinimaxClient`
+- `MCTSClient`
+
+Note: For `ReversiClient_DrCrandall_MCTS, simply run:
+
+`java -jar ReversiClient_DrCrandall_MCTS.jar localhost [1|2]`
+
+from the root folder.
+
+# Notes
+
+There are 5 clients:
+
+1. ReversiClient_Human
+    - This client allows a human to play. Running it opens a Reversi UI where the user can click on their selected action.
+2. ReversiClient_Random
+    - Makes random moves.
+3. ReversiClient_Minimax
+    - Uses the Minimax algorithm, alpha-beta pruning (for efficiency), and smart heuristics.
+    - Heuristics are weighted, account for both the player (maximizer) and opponent (minimizer), and normalized to zero.
+    - Heuristics used:
+        - Number of tokens
+        - Number of moves
+        - Number of corners
+4. ReversiClient_MCTS
+    - Uses Monte Carlo Tree Search, an alternative to the Minimax algorithm.
+    - MCTS is less computationally expensive than Minimax, and doesn't require the use of heuristics. It works by running for a set amount of time. While time is left, it expands one new child state, simulate random play from the child state to termination, and percolates the resulting score up. While Minimax and MCTS are both viable options for Reversi, MCTS shines in games with larger state spaces where an exhaustive search is not possible.
+5. ReversiClient_DrCrandall_MCTS
+    - This also uses Monte Carlo Tree Search, but was created by Dr. Crandall. Only a `.jar` file is provided to not disclose his code. It is notoriously good at Reversi.

@@ -8,13 +8,13 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
-class SmartGuy {
+class MCTSClient {
 
     public Socket s;
 	public BufferedReader sin;
 	public PrintWriter sout;
     Random generator = new Random();
-    Minimax brain = new Minimax();
+    MCTS brain = new MCTS();
 
     double t1, t2;
     int me;
@@ -28,7 +28,7 @@ class SmartGuy {
     
 
     // main function that (1) establishes a connection with the server, and then plays whenever it is this player's turn
-    public SmartGuy(int _me, String host) {
+    public MCTSClient(int _me, String host) {
         me = _me;
         initClient(host);
 
@@ -137,10 +137,10 @@ class SmartGuy {
 
     
     // compile on your machine: javac *.java
-    // call: java SmartGuy [ipaddress] [player_number]
+    // call: java MCTSClient [ipaddress] [player_number]
     //   ipaddress is the ipaddress on the computer the server was launched on.  Enter "localhost" if it is on the same computer
     //   player_number is 1 (for the black player) and 2 (for the white player)
     public static void main(String args[]) {
-        new SmartGuy(Integer.parseInt(args[1]), args[0]);
+        new MCTSClient(Integer.parseInt(args[1]), args[0]);
     }
 }
