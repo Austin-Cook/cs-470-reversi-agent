@@ -1,7 +1,52 @@
 public class Util {
   public static final int MAXIMIZER = 1;
   public static final int MINIMIZER = 2;
-  
+
+  public static int[][] createChildGrid(final int[][] grid, final int player, final int move) {
+    int[][] child = new int[8][8];
+    for (int i = 0; i < 8; i++){
+      for (int j = 0; j < 8; j++){
+        child[i][j] = grid[i][j];
+      }
+    }
+    
+    int row = getRow(move);
+    int col = getCol(move);
+    
+    child[row][col] = player;
+    Util.flipPieces(child, row, col, player);
+
+    return child;
+  }
+
+  public static boolean didWin(final int[][] grid, int player) {
+    int opponent = player == Util.MAXIMIZER ? Util.MINIMIZER : Util.MAXIMIZER;
+    int val = 0;
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        if (grid[i][j] == player) {
+          val += 1;
+        } else if (grid[i][j] == opponent) {
+          val -= 1;
+        }
+      }
+    }
+
+    return val > 0;
+  }
+
+  public static int getRow(final int indexRepresentation) {
+    return indexRepresentation / 8;
+  }
+
+  public static int getCol(final int indexRepresentation) {
+    return indexRepresentation % 8;
+  }
+
+  public static int changeTurns(int player) {
+    return player == Util.MAXIMIZER ? Util.MINIMIZER : Util.MAXIMIZER;
+  }
+
   // generates the set of valid moves for the player; returns a list of valid moves (validMoves)
   // sets a value at an index (increasing) for each valid move to a number representing a number on the grid
   // returns the number of valid moves

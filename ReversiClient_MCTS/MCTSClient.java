@@ -59,7 +59,7 @@ class MCTSClient {
     }
     
     private int move() {
-        int moveGridValue = brain.computeBestMove(round, state, 6, me);
+        int moveGridValue = brain.computeBestMove(state, round, me);
         return findMoveInValidMoves(moveGridValue);
     }
 
