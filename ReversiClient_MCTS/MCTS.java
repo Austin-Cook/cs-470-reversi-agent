@@ -17,8 +17,10 @@ import java.util.Random;
  * 0  1  2  3  4  5  6  7  <------- cols
  */
 public class MCTS {
-    private static final int NUM_ITERATIONS = 100000;
+    private static final int NUM_ITERATIONS = 1000;
     private static final double c = 1.41; // exploration parameter: sqrt(2)
+    private static final int W_INDEX = 0;
+    private static final int N_INDEX = 1;
     private State rootState;
     private int me; // 1|2, the player's number
     
@@ -38,7 +40,8 @@ public class MCTS {
     /**
      * Includes the steps (1) Select, (2) Expand, (3) Simulate, (4) Back Up
      * 
-     * @return [numWins, numSimulations]
+     * @return [numWins, numPlayouts]
+     * Note: A playout can be either a simulation, or the game for a terminal state
      */
     private int[] mcts(State state) {
         if (state.numValidMoves == 0) {
@@ -57,25 +60,24 @@ public class MCTS {
             state.addResults(childResults);
             return childResults;
         } else {
-            // child states not yet expanded: expand children
+            // child states not yet expanded: expand all children
             int[] validMoves = new int[64];
             int numValidMoves = Util.getValidMoves(state.round, state.grid, state.nextTurn, validMoves);
             assert (numValidMoves == state.numValidMoves); // DELETEME
+            int[] childrenResults = new int[] {0, 0};
             for (int i = 0; i < state.numValidMoves; i++) {
                 int childNextPlayer = Util.changeTurns(state.nextTurn);
                 State child = new State(Util.createChildGrid(state.grid, state.nextTurn, validMoves[i]), state.round + 1, childNextPlayer);
-                // TODO start here
+                childrenResults[W_INDEX] += child.w;
+                childrenResults[N_INDEX] += child.n;
+                state.childStates.add(child);
             }
+            state.addResults(childrenResults);
+            return childrenResults;
         }
-    
-
-        // TODO update t: every simulation n will reach root, so make sure that you update it when you simulate
-
-        // TODO
-        return new int[] {2, 2};
     }
 
-    private class State {
+    private class State { // TODO make private again
         private final int[][] grid;
         private final int round;
         private final int nextTurn;
@@ -137,35 +139,59 @@ public class MCTS {
             int sNumValidMoves = Util.getValidMoves(sRound, sGrid, sTurn, sValidMoves);
             
             // simulate to an ending state
-            while (numValidMoves > 0) {
+            while (sNumValidMoves > 0) {
                 // simulate one state
-                int move = random.nextInt(sNumValidMoves);
+                int move = sValidMoves[random.nextInt(sNumValidMoves)];
                 sGrid = Util.createChildGrid(sGrid, sTurn, move);
                 sRound += 1;
                 sTurn = Util.changeTurns(sTurn);
                 sNumValidMoves = Util.getValidMoves(sRound, sGrid, sTurn, sValidMoves);
             }
-
             return Util.didWin(sGrid, me) ? 1 : 0;
         }
     }
 
+    /**
+     * Returns the move that creates the best child state from the parent state.
+     */
     private int extractBestMove(State state) {
         assert (state.numValidMoves > 0 && state.childStates.size() > 0);
-        // TODO
+        State bestChild = state.getBestChild();
 
+        for (int row = 0; row < state.grid.length; row++) {
+            for (int col = 0; col < state.grid[0].length; col++) {
+                if (state.grid[row][col] != bestChild.grid[row][col]) {
+                    return (8 * row) + col;
+                }
+            }
+        }
 
-        // DELETEME (This is a State method)
-        // // get child state with highest UCB
-        // double maxUCB = 0.0;
-        // int indexMaxUCBChild = 0;
-        // for (int i = 0; i < state.childStates.size(); i++) {
-        //     State child = state.childStates.get(i);
-        //     double ucb = upperConfidenceBound(child.w, child.n);
-        //     if (ucb > maxUCB) { // TODO ensure this always grabs a state
-        //         maxUCB = ucb;
-        //         indexMaxUCBChild = i;
-        //     }
-        // }
+        System.out.println("ERROR, unable to extractBestMove()");
+        return -1;
+    }
+
+    public void test() { // DELETEMe
+        int[][] arr = {{0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0},
+            {0,0,0,1,2,0,0,0},
+            {0,0,0,2,1,0,0,0},
+            {0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0}};
+        me = 2;
+        
+        System.out.println("Beginning test");
+        State state = new State(arr, 4, 1);
+
+    }
+
+    private static void printGrid(int[][] grid) { // DELETEME!!!
+        for (int i = grid.length - 1; i >= 0; i--) {
+            for (int j = 0; j < grid[0].length; j++) {
+                System.out.print(grid[i][j] + " ");
+            }
+            System.out.println("");
+        }
     }
 }
