@@ -17,10 +17,8 @@ import java.util.Random;
  * 0  1  2  3  4  5  6  7  <------- cols
  */
 public class MCTS {
-    private static final int NUM_ITERATIONS = 1000;
+    private static final int NUM_ITERATIONS = 3000;
     private static final double c = 1.41; // exploration parameter: sqrt(2)
-    private static final int W_INDEX = 0;
-    private static final int N_INDEX = 1;
     private State rootState;
     private int me; // 1|2, the player's number
     
@@ -68,8 +66,8 @@ public class MCTS {
             for (int i = 0; i < state.numValidMoves; i++) {
                 int childNextPlayer = Util.changeTurns(state.nextTurn);
                 State child = new State(Util.createChildGrid(state.grid, state.nextTurn, validMoves[i]), state.round + 1, childNextPlayer);
-                childrenResults[W_INDEX] += child.w;
-                childrenResults[N_INDEX] += child.n;
+                childrenResults[0] += child.w;
+                childrenResults[1] += child.n;
                 state.childStates.add(child);
             }
             state.addResults(childrenResults);
