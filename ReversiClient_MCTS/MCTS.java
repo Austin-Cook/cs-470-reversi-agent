@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 /**
@@ -17,8 +19,8 @@ import java.util.Random;
  * 0  1  2  3  4  5  6  7  <------- cols
  */
 public class MCTS {
-    private static final int NUM_ITERATIONS = 3000;
-    private static final double c = 1.41; // exploration parameter: sqrt(2)
+    private static final int NUM_ITERATIONS = 5000;
+    private static final double c = 1.414; // exploration parameter: sqrt(2)
     private State rootState;
     private int me; // 1|2, the player's number
     
@@ -32,7 +34,7 @@ public class MCTS {
             mcts(rootState);
         }
 
-        return extractBestMove(rootState); // TODO
+        return rootState.getBestChildMove();
     }
 
     /**
@@ -42,40 +44,40 @@ public class MCTS {
      * Note: A playout can be either a simulation, or the game for a terminal state
      */
     private int[] mcts(State state) {
+        int[] results;
         if (state.numValidMoves == 0) {
-            // game over state reached: use actual score instead of simulation score
-            System.out.println("Child state reached!!!!!!!!!"); // TODO deleteme
+            // game over state: use actual score instead of simulation score
             int numWins = Util.didWin(state.grid, me) ? 1 : 0;
             int numGames = 1;
-            int[] results = new int[] { numWins, numGames };
+            results = new int[] { numWins, numGames };
             state.addResults(results);
-            return results; // TODO FIXME am I doing this right
+            return results;
         } else if (state.childStates.size() > 0) {
-            // child states already expanded: recurse further down the tree
+            // child states expanded already: keep traversing the the tree
             assert (state.numValidMoves == state.childStates.size());
             State bestChild = state.getBestChild();
-            int[] childResults = mcts(bestChild);
-            state.addResults(childResults);
-            return childResults;
+            results = mcts(bestChild);
+            state.addResults(results);
         } else {
             // child states not yet expanded: expand all children
             int[] validMoves = new int[64];
             int numValidMoves = Util.getValidMoves(state.round, state.grid, state.nextTurn, validMoves);
-            assert (numValidMoves == state.numValidMoves); // DELETEME
-            int[] childrenResults = new int[] {0, 0};
+            results = new int[] {0, 0};
             for (int i = 0; i < state.numValidMoves; i++) {
                 int childNextPlayer = Util.changeTurns(state.nextTurn);
                 State child = new State(Util.createChildGrid(state.grid, state.nextTurn, validMoves[i]), state.round + 1, childNextPlayer);
-                childrenResults[0] += child.w;
-                childrenResults[1] += child.n;
+                results[0] += child.w;
+                results[1] += child.n;
                 state.childStates.add(child);
             }
-            state.addResults(childrenResults);
-            return childrenResults;
+            state.addResults(results);
+            return results;
         }
+
+        return results;
     }
 
-    private class State { // TODO make private again
+    private class State {
         private final int[][] grid;
         private final int round;
         private final int nextTurn;
@@ -88,7 +90,7 @@ public class MCTS {
             this.grid = grid;
             this.round = round;
             this.nextTurn = nextTurn;
-            this.numValidMoves = Util.getValidMoves(round, grid, nextTurn, new int[64]); // FIXME, is it referencing the wrong player
+            this.numValidMoves = Util.getValidMoves(round, grid, nextTurn, new int[64]);
             this.childStates = new ArrayList<State>();
             this.w = simulateResult();
             this.n = 1;
@@ -97,15 +99,6 @@ public class MCTS {
         public void addResults(int[] results) {
             this.w += results[0];
             this.n += results[1];
-        }
-
-        /**
-         * Gets the child state with highest UCB.
-         */
-        public State getBestChild() {
-            assert (childStates.size() > 0);
-            Comparator<State> ucbComparator = Comparator.comparingDouble(State::upperConfidenceBound);
-            return childStates.stream().max(ucbComparator).get();
         }
 
         /**
@@ -140,6 +133,16 @@ public class MCTS {
             while (sNumValidMoves > 0) {
                 // simulate one state
                 int move = sValidMoves[random.nextInt(sNumValidMoves)];
+                int alt;
+                for (int i = 0; i < sNumValidMoves; i++) { // pick corner/edge if possible
+                    alt = sValidMoves[i];
+                    if (alt == 0 || alt == 7 || alt == 56 || alt == 63) { // corner
+                        move = alt;
+                    } else if (alt % 8 == 0 || alt % 8 == 7 || alt <= 7 || alt >= 56) { // edge
+                        move = alt;
+                    }
+                }
+
                 sGrid = Util.createChildGrid(sGrid, sTurn, move);
                 sRound += 1;
                 sTurn = Util.changeTurns(sTurn);
@@ -147,49 +150,31 @@ public class MCTS {
             }
             return Util.didWin(sGrid, me) ? 1 : 0;
         }
-    }
 
-    /**
-     * Returns the move that creates the best child state from the parent state.
-     */
-    private int extractBestMove(State state) {
-        assert (state.numValidMoves > 0 && state.childStates.size() > 0);
-        State bestChild = state.getBestChild();
-
-        for (int row = 0; row < state.grid.length; row++) {
-            for (int col = 0; col < state.grid[0].length; col++) {
-                if (state.grid[row][col] != bestChild.grid[row][col]) {
-                    return (8 * row) + col;
-                }
-            }
+        /**
+         * Gets the child state with highest UCB.
+         */
+        public State getBestChild() {
+            assert (childStates.size() > 0);
+            Comparator<State> ucbComparator = Comparator.comparingDouble(State::upperConfidenceBound);
+            return childStates.stream().max(ucbComparator).get();
         }
 
-        System.out.println("ERROR, unable to extractBestMove()");
-        return -1;
-    }
+        /**
+        * Gets the grid number of the move that creates the best child state.
+        */
+        public int getBestChildMove() {
+            assert (numValidMoves > 0 && childStates.size() > 0);
+            State bestChild = getBestChild();
 
-    public void test() { // DELETEMe
-        int[][] arr = {{0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0},
-            {0,0,0,1,2,0,0,0},
-            {0,0,0,2,1,0,0,0},
-            {0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0}};
-        me = 2;
-        
-        System.out.println("Beginning test");
-        State state = new State(arr, 4, 1);
-
-    }
-
-    private static void printGrid(int[][] grid) { // DELETEME!!!
-        for (int i = grid.length - 1; i >= 0; i--) {
-            for (int j = 0; j < grid[0].length; j++) {
-                System.out.print(grid[i][j] + " ");
+            for (int row = 0; row < grid.length; row++) {
+                for (int col = 0; col < grid[0].length; col++) {
+                    if (grid[row][col] != bestChild.grid[row][col]) {
+                        return (8 * row) + col;
+                    }
+                }
             }
-            System.out.println("");
+            return -1; // corrupt state (will not occur)
         }
     }
 }
