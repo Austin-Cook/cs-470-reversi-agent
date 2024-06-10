@@ -270,7 +270,7 @@ class MyCanvas extends JComponent {
 }
 
 
-class Human extends JFrame {
+class HumanClient extends JFrame {
     Color bkgroundColor = new Color(200,160,120);
     MyCanvas canvas;
     boolean gameOver = false;
@@ -293,7 +293,7 @@ class Human extends JFrame {
     int validMoves[] = new int[64];
     int numValidMoves;
     
-    public Human(int _me, String host) {
+    public HumanClient(int _me, String host) {
         final int width = 540;//620;
         final int height = 648;//728;
 
@@ -544,7 +544,7 @@ class Human extends JFrame {
     }
 
     public static void main(String args[]) {
-        new Human(Integer.parseInt(args[1]), args[0]);
+        new HumanClient(Integer.parseInt(args[1]), args[0]);
     }
     
 }
